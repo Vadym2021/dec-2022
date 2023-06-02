@@ -1,84 +1,32 @@
-// EVENTS
-// const events = require('node:events');
-//
-// const eventEmitter = new events();
-//
-// eventEmitter.on('click', (data)=>{
-//   console.log(data)
-//   console.log('Click click click');
-// })
-//
-// eventEmitter.emit('click', { data: "Hello" });
-// eventEmitter.emit('click');
-// eventEmitter.emit('click');
-// eventEmitter.emit('click');
-// eventEmitter.emit('click');
-//
-// console.log(eventEmitter.eventNames());
-//
-// eventEmitter.once('clickAndDie', ()=>{
-//   console.log('Clicked and died');
-// })
-//
-// console.log(eventEmitter.eventNames());
-//
-// eventEmitter.emit('clickAndDie');
-// eventEmitter.emit('clickAndDie');
-// eventEmitter.emit('clickAndDie');
-// eventEmitter.emit('clickAndDie');
-//
-// console.log(eventEmitter.eventNames());
-//
-// const fs = require('fs');
-//
-// const readStream = fs.createReadStream('text.txt');
-// const writeStream = fs.createWriteStream('text2.txt');
-//
-// readStream.on('data', (chunk)=>{
-//   console.log(chunk);
-//   writeStream.write(chunk)
-// })
-//
-// readStream
-//   .on('error', ()=>{
-//     readStream.destroy();
-//     writeStream.end('ERROR ON READING FILE');
-//
-//     // handle error
-//   })
-//   .pipe(writeStream)
-//
-// read, write, duplex, transform - !!!
-
-const express = require('express')
-
-const users = [
-  {
-    name: 'Oleh',
-    age: 20,
-    gender: 'male'
-  },
-  {
-    name: 'Anton',
-    age: 10,
-    gender: 'male'
-  },
-  {
-    name: 'Inokentiy',
-    age: 25,
-    gender: 'female'
-  },
-  {
-    name: 'Anastasiya',
-    age: 15,
-    gender: 'female'
-  },
-  {
-    name: 'Cocos',
-    age: 25,
-    gender: 'other',
-  },
-]
+// const users = [
+//   {
+//     name: 'Oleh',
+//     age: 20,
+//     gender: 'male'
+//   },
+//   {
+//     name: 'Anton',
+//     age: 10,
+//     gender: 'male'
+//   },
+//   {
+//     name: 'Inokentiy',
+//     age: 25,
+//     gender: 'female'
+//   },
+//   {
+//     name: 'Anastasiya',
+//     age: 15,
+//     gender: 'female'
+//   },
+//   {
+//     name: 'Cocos',
+//     age: 25,
+//     gender: 'other',
+//   },
+// ]
+const express = require('express');
+const fileService = require('./file.service');
 
 const app = express();
 
@@ -88,48 +36,91 @@ app.use(express.urlencoded({extended: true}))
 
 // CRUD - create, read, update, delete
 
-app.get('/users', (req, res) => {
-  res.status(200).json(users)
+app.get('/users', async (req, res) => {
+    const users = await fileService.readDB();
+    res.json(users);
+});
+
+app.patch('/users/:id', async (req, res) => {
+    const {id} = req.params;
+    const {name, age} = req.body;
+    if (name && name.length < 5) {
+        return res.status(400).json('name is wrong')
+    }
+    if (age && (age < 10 || age > 100)) {
+        return res.status(400).json('age is wrong')
+    }
+
+    const users = await fileService.readDB();
+    const user = users.find((user) => user.id === +id);
+    if (!user) {
+        return res.status(422).json('user not found');
+    }
+    if (name) {
+        user.name = name;
+    }
+    if (age) {
+        user.age = age;
+    }
+
+    await fileService.writeDB(users);
+    res.status(201).json(user);
+});
+// app.get('/users/:id', (req, res) => {
+//   const { id } = req.params;
+//
+//   res.status(200).json(users[+id]);
+// })
+
+app.post('/users', async (req, res) => {
+    const {name, age} = req.body;
+    if (!name || name.length < 5) {
+        return res.status(400).json('name is wrong')
+    }
+    if (!age || age < 10 || age > 100) {
+        return res.status(400).json('age is wrong')
+    }
+    const users = await fileService.readDB();
+    const newUser = {
+        id: users.length ? users[users.length - 1].id + 1 : 1,
+        name,
+        age,
+    }
+
+
+    users.push(newUser);
+
+    await fileService.writeDB(users);
+
+    res.status(201).json(newUser);
+});
+
+app.get('/users/:id', async (req, res) => {
+    const {id} = req.params;
+
+    const users = await fileService.readDB();
+    const user = users.find((user) => user.id === +id)
+    if (!user) {
+        return res.status(422).json('user not found');
+    }
+
+    res.json(user)
 })
 
-app.get('/users/:id', (req, res) => {
-  const { id } = req.params;
-
-  res.status(200).json(users[+id]);
-})
-
-app.post('/users', (req, res)=>{
-  users.push(req.body);
-
-  res.status(201).json({
-    message: "User created."
-  });
-})
-
-app.put('/users/:id', (req, res)=>{
-  const { id } = req.params;
-
-  users[+id] = req.body;
-
-  res.status(200).json({
-    message: 'User updated',
-    data: users[+id],
-  })
-})
-
-app.delete('/users/:id', (req, res)=>{
-  const { id } = req.params;
-
-  users.splice(+id, 1);
-
-  res.status(200).json({
-    message: 'User deleted',
-  })
-})
+app.delete('/users/:id', async (req, res) => {
+    const {id} = req.params;
+    const users = await fileService.readDB();
+    const index = users.findIndex((user) => user.id === +id);
+    if (index === -1) {
+        return res.status(422).json('user not found');
+    }
+    users.splice(index, 1);
+    await fileService.writeDB(users);
+    res.sendStatus(204);
+});
 
 const PORT = 5001;
 
 app.listen(PORT, () => {
-  console.log(`Server has started on PORT ${PORT} 🥸`)
-})
-
+    console.log(`Server has started on PORT ${PORT} 🥸`)
+});
