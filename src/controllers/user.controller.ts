@@ -1,92 +1,86 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 
-import { ApiError } from "../errors";
-import { User } from "../models/User.mode";
-import { userService } from "../services/user.service";
-import { IUser } from "../types/user.type";
-import { UserValidator } from "../validators";
+
+import {userService} from "../services/user.service";
+import {IUser} from "../types/user.type";
+
 
 class UserController {
-  public async findAll(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser[]>> {
-    try {
-      const users = await userService.findAll();
+    public async findAll(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response<IUser[]>> {
+        try {
+            const users = await userService.findAll();
 
-      return res.json(users);
-    } catch (e) {
-      next(e);
+            return res.json(users);
+        } catch (e) {
+            next(e);
+        }
     }
-  }
 
-  public async create(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> {
-    try {
-      const createdUser = await userService.create(req.res.locals as IUser);
+    public async create(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response<IUser>> {
+        try {
+            const createdUser = await userService.create(req.body);
 
-      return res.status(201).json(createdUser);
-    } catch (e) {
-      next(e);
+            return res.status(201).json(createdUser);
+        } catch (e) {
+            next(e);
+        }
     }
-  }
 
-  public async findById(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> {
-    try {
-      const user = await userService.findById(req.params.id);
+    public async findById(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response<IUser>> {
+        try {
+            const {userId} = req.params;
+            const user = await userService.findById(userId);
 
-      return res.json(user);
-    } catch (e) {
-      next(e);
+            return res.json(user);
+        } catch (e) {
+            next(e);
+        }
     }
-  }
 
-  public async updateById(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> {
-    try {
-      const { id } = req.params;
+    public async updateById(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response<IUser>> {
+        try {
+            const {userId} = req.params;
 
-      const { error, value } = UserValidator.update.validate(req.body);
-      if (error) {
-        throw new ApiError(error.message, 400);
-      }
-      const updatedUser = await User.findOneAndUpdate(
-        { _id: id },
-        { ...value },
-        { returnDocument: "after" }
-      );
+            const updatedUser = await userService.updateById(userId, req.body);
 
-      return res.status(200).json(updatedUser);
-    } catch (e) {
-      next(e);
+
+            return res.status(200).json(updatedUser);
+        } catch (e) {
+            next(e);
+        }
     }
-  }
 
-  public async deleteById(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<void>> {
-    try {
-      const { id } = req.params;
-      await User.deleteOne({ _id: id });
+    public async deleteById(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response<void>> {
+        try {
+            const {userId} = req.params;
+            await userService.deleteById(userId);
 
-      return res.sendStatus(200);
-    } catch (e) {
-      next(e);
+
+            return res.sendStatus(204);
+        } catch (e) {
+            next(e);
+        }
     }
-  }
 }
 
 export const userController = new UserController();

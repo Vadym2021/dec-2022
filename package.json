@@ -4,8 +4,8 @@
   "description": "DEC-2022-NODEJS",
   "main": "src/app.ts",
   "scripts": {
-    "start": "rimraf dist && tsc-watch --onSuccess 'npm run watch'",
-    "watch": "nodemon 'src/app.ts' --watch './src'"
+    "start": "rimraf dist && tsc-watch --onSuccess \"npm run watch\"",
+    "watch": "nodemon \"src/app.ts\" --watch \"./src\""
   },
   "repository": {
     "type": "git",
