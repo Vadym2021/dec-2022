@@ -19,12 +19,14 @@ class AuthService {
 
     public async login(credantials: ICredentials, user: IUser): Promise<ITokensPair> {
         try {
-            user = await User.findOne({email:credantials.email}).select("password");
             const isMatched = await passwordService.compare(credantials.password, user.password);
             if (!isMatched) {
                 new ApiError('inavalid email or password', 401)
             }
-            const tokensPair = await tokenService.generateTokenPair({_id: user._id});
+            const tokensPair = await tokenService.generateTokenPair({
+                _id: user._id,
+                name: user.name,
+            });
 
             await Token.create({...tokensPair, _userId: user._id});
             return tokensPair;

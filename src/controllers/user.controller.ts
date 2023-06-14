@@ -20,19 +20,19 @@ class UserController {
         }
     }
 
-    public async create(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<Response<IUser>> {
-        try {
-            const createdUser = await userService.create(req.body);
-
-            return res.status(201).json(createdUser);
-        } catch (e) {
-            next(e);
-        }
-    }
+    // public async create(
+    //     req: Request,
+    //     res: Response,
+    //     next: NextFunction
+    // ): Promise<Response<IUser>> {
+    //     try {
+    //         const createdUser = await userService.create(req.body);
+    //
+    //         return res.status(201).json(createdUser);
+    //     } catch (e) {
+    //         next(e);
+    //     }
+    // }
 
     public async findById(
         req: Request,
