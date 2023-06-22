@@ -66,6 +66,38 @@ class AuthController {
       next(e);
     }
   }
+  public async forgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { user } = res.locals;
+      await authService.forgotPassword(user._id, req.body.email);
+
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async setForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { password } = req.body;
+      const { jwtPayload } = req.res.locals;
+
+      await authService.setForgotPassword(
+        password,
+        jwtPayload._id,
+        req.params.token
+      );
+      return res.sendStatus(200);
+    } catch (e) {}
+  }
 }
 
 export const authController = new AuthController();
