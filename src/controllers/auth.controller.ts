@@ -18,22 +18,6 @@ class AuthController {
     }
   }
 
-  public async activate(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<void>> {
-    try {
-      const { jwtPayload } = req.res.locals;
-
-      await authService.activate(jwtPayload);
-
-      return res.sendStatus(201);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   public async login(
     req: Request,
     res: Response,
@@ -82,7 +66,6 @@ class AuthController {
       next(e);
     }
   }
-
   public async forgotPassword(
     req: Request,
     res: Response,
@@ -112,11 +95,8 @@ class AuthController {
         jwtPayload._id,
         req.params.token
       );
-
       return res.sendStatus(200);
-    } catch (e) {
-      next(e);
-    }
+    } catch (e) {}
   }
 }
 

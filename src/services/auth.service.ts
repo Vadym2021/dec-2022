@@ -2,7 +2,6 @@ import { Types } from "mongoose";
 
 import { EActionTokenTypes } from "../enums/action-token-type.enum";
 import { EEmailActions } from "../enums/email.enum";
-import { EUserStatus } from "../enums/user-status.enum";
 import { ApiError } from "../errors";
 import { Action } from "../models/Action.model";
 import { OldPassword } from "../models/OldPassword.model";
@@ -19,37 +18,11 @@ class AuthService {
     try {
       const hashedPassword = await passwordService.hash(data.password);
 
-      const user = await User.create({ ...data, password: hashedPassword });
-
-      const actionToken = tokenService.generateActionToken(
-        { _id: user._id },
-        EActionTokenTypes.Activate
-      );
-      await Promise.all([
-        Action.create({
-          actionToken,
-          tokenType: EActionTokenTypes.Activate,
-          _userId: user._id,
-        }),
-        emailService.sendMail(data.email, EEmailActions.WELCOME, {
-          name: data.name,
-          actionToken,
-        }),
-      ]);
-    } catch (e) {
-      throw new ApiError(e.message, e.status);
-    }
-  }
-
-  public async activate(jwtPayload: ITokenPayload): Promise<void> {
-    try {
-      await Promise.all([
-        User.updateOne({ _id: jwtPayload._id }, { status: EUserStatus.Active }),
-        Action.deleteMany({
-          _userId: jwtPayload._id,
-          tokenType: EActionTokenTypes.Activate,
-        }),
-      ]);
+      await User.create({ ...data, password: hashedPassword });
+      await emailService.sendMail(data.email, EEmailActions.WELCOME, {
+        name: data.name,
+        url: "http://localhost:5541/activate-account/jwtToken",
+      });
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }
@@ -107,15 +80,11 @@ class AuthService {
     userId: string
   ): Promise<void> {
     try {
-      const [oldPasswords, user] = await Promise.all([
-        OldPassword.find({ _userId: userId }).lean(),
-        User.findById(userId).select("password"),
-      ]);
-      const passwords = [...oldPasswords, { password: user.password }];
+      const oldPasswords = await OldPassword.find({ _userId: userId });
       await Promise.all(
-        passwords.map(async ({ password: hash }) => {
+        oldPasswords.map(async ({ password: hash }) => {
           const isMatched = await passwordService.compare(
-            dto.newPassword,
+            dto.oldPassword,
             hash
           );
           if (isMatched) {
@@ -123,6 +92,16 @@ class AuthService {
           }
         })
       );
+
+      const user = await User.findById(userId).select("password");
+
+      const isMatched = await passwordService.compare(
+        dto.oldPassword,
+        user.password
+      );
+      if (!isMatched) {
+        throw new ApiError("Wrong old password", 400);
+      }
 
       const newHash = await passwordService.hash(dto.newPassword);
       await Promise.all([
@@ -143,7 +122,6 @@ class AuthService {
         { _id: userId },
         EActionTokenTypes.Forgot
       );
-
       await Promise.all([
         Action.create({
           actionToken,
@@ -166,7 +144,6 @@ class AuthService {
   ): Promise<void> {
     try {
       const hashedPassword = await passwordService.hash(password);
-
       await Promise.all([
         User.updateOne({ _id: userId }, { password: hashedPassword }),
         Action.deleteOne({ actionToken }),

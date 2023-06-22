@@ -18,12 +18,6 @@ router.post(
 );
 
 router.post(
-  "/register/:token",
-  authMiddleware.checkActionToken(EActionTokenTypes.Activate),
-  authController.activate
-);
-
-router.post(
   "/login",
   commonMiddleware.isBodyValid(UserValidator.login),
   userMiddleware.isUserExist<ICredentials>("email"),
@@ -51,7 +45,7 @@ router.post(
 );
 
 router.put(
-  "/forgot/:token",
+  "/password/forgot/:token",
   commonMiddleware.isBodyValid(UserValidator.setForgotPassword),
   authMiddleware.checkActionToken(EActionTokenTypes.Forgot),
   authController.setForgotPassword

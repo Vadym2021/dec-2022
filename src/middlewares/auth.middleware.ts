@@ -65,24 +65,19 @@ class AuthMiddleware {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const actionToken = req.params.token;
-
         if (!actionToken) {
-          throw new ApiError("Token is not provided", 400);
+          throw new ApiError("token is not provided", 400);
         }
-
         const jwtPayload = tokenService.checkActionToken(
           actionToken,
           tokenType
         );
-
         const tokenFromDb = await Action.findOne({ actionToken });
-
         if (!tokenFromDb) {
-          throw new ApiError("Token is invalid", 400);
+          throw new ApiError("token is invalid", 400);
         }
 
         req.res.locals = { jwtPayload, tokenFromDb };
-
         next();
       } catch (e) {
         next(e);
