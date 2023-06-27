@@ -111,7 +111,7 @@ class AuthService {
       await Promise.all(
         oldPasswords.map(async ({ password: hash }) => {
           const isMatched = await passwordService.compare(
-            dto.oldPassword,
+            dto.newPassword,
             hash
           );
           if (isMatched) {
