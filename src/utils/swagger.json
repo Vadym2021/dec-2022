@@ -1,0 +1,86 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Noda 2022",
+    "version": "1.0.0",
+    "title": "Swagger",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "apiteam@swagger.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "description": "get all users",
+        "summary": "get all users summary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returned ARRAY OF USERS"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "description": "get user by id",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "useId",
+            "in": "path",
+            "description": "ID of usr to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": "true",
+            "schema": {
+              "type": "string",
+              "default": "sfdfcfgdfgd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returned USER",
+            "$ref": "#/definiдлtions/User"
+          }
+        }
+      }
+    }
+  },
+    "definitions": {
+      "User": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "isActivated": {
+            "type": "boolean"
+          },
+          "age": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+
+
+
