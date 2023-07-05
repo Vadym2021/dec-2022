@@ -25,12 +25,12 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
-    allowHeaders: [
-      "Authorization",
-      "Content-Type",
-      "Origin",
-      "Access-Control-Allow-Origin",
-    ],
+    // allowHeaders: [
+    //   "Authorization",
+    //   "Content-Type",
+    //   "Origin",
+    //   "Access-Control-Allow-Origin",
+    // ],
     preflightContinue: false,
     optionsSuccessStatus: 200,
   })

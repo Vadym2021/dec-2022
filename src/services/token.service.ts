@@ -9,7 +9,7 @@ import { ITokenPayload, ITokensPair } from "../types/token.types";
 class TokenService {
   public generateTokenPair(payload: ITokenPayload): ITokensPair {
     const accessToken = jwt.sign(payload, configs.JWT_ACCESS_SECRET, {
-      expiresIn: "60s",
+      expiresIn: "10d",
     });
     const refreshToken = jwt.sign(payload, configs.JWT_REFRESH_SECRET, {
       expiresIn: "30d",

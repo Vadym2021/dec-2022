@@ -1,6 +1,6 @@
 import { model, Schema, Types } from "mongoose";
 
-import { User } from "./User.mode";
+import { User } from "./User.model";
 
 const oldPasswordSchema = new Schema(
   {
@@ -17,4 +17,4 @@ const oldPasswordSchema = new Schema(
   { versionKey: false, timestamps: true }
 );
 
-export const OldPassword = model("oldPassword", oldPasswordSchema);
+export const oldPassword = model("oldPassword", oldPasswordSchema);

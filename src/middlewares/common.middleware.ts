@@ -30,6 +30,7 @@ class CommonMiddleware {
         }
 
         req.body = value;
+        console.log(req.body)
         next();
       } catch (e) {
         next(e);

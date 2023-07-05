@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "../errors";
-import { User } from "../models/User.mode";
+import { User } from "../models/User.model";
 import { IUser } from "../types/user.type";
 
 class UserMiddleware {

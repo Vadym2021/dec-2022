@@ -2,16 +2,18 @@ import { Types } from "mongoose";
 
 import { EActionTokenTypes } from "../enums/action-token-type.enum";
 import { EEmailActions } from "../enums/email.enum";
+import { ESmsActions } from "../enums/sms.enum";
 import { EUserStatus } from "../enums/user-status.enum";
 import { ApiError } from "../errors";
 import { Action } from "../models/Action.model";
-import { OldPassword } from "../models/OldPassword.model";
+import { oldPassword } from "../models/OldPassword.model";
 import { Token } from "../models/Token.model";
-import { User } from "../models/User.mode";
+import { User } from "../models/User.model";
 import { ICredentials, ITokenPayload, ITokensPair } from "../types/token.types";
 import { IUser } from "../types/user.type";
 import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
+import { smsService } from "./sms.service";
 import { tokenService } from "./token.service";
 
 class AuthService {
@@ -35,6 +37,7 @@ class AuthService {
           name: data.name,
           actionToken,
         }),
+        smsService.sendSms(data.phone, ESmsActions.WELCOME),
       ]);
     } catch (e) {
       throw new ApiError(e.message, e.status);
@@ -107,7 +110,7 @@ class AuthService {
     userId: string
   ): Promise<void> {
     try {
-      const oldPasswords = await OldPassword.find({ _userId: userId });
+      const oldPasswords = await oldPassword.find({ _userId: userId });
       await Promise.all(
         oldPasswords.map(async ({ password: hash }) => {
           const isMatched = await passwordService.compare(
@@ -132,7 +135,7 @@ class AuthService {
 
       const newHash = await passwordService.hash(dto.newPassword);
       await Promise.all([
-        OldPassword.create({ password: user.password, _userId: userId }),
+        oldPassword.create({ password: user.password, _userId: userId }),
         User.updateOne({ _id: userId }, { password: newHash }),
       ]);
     } catch (e) {

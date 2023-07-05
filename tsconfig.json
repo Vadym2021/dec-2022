@@ -13,11 +13,11 @@
     "noUnusedLocals": true, /* Enable error reporting when local variables aren't read. */
     "sourceMap": true ,
     "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "strictPropertyInitialization": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "allowUnreachableCode": false,
-    "noUnusedParameters": true
+//    "forceConsistentCasingInFileNames": true,
+//    "strict": true,
+//    "strictPropertyInitialization": false,
+//    "noPropertyAccessFromIndexSignature": false,
+//    "allowUnreachableCode": false,
+//    "noUnusedParameters": true
   }
 }

@@ -1,4 +1,4 @@
-import { User } from "../models/User.mode";
+import { User } from "../models/User.model";
 import { IUser } from "../types/user.type";
 
 class UserRepository {
