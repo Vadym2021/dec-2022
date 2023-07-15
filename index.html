@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<button id="send">
+    one-to-one
+</button>
+
+<button id="broadcast">
+    broadcast
+</button>
+
+<button id="joinRoom1">
+    Join room 1
+</button>
+
+<button id="joinRoom2">
+    Join room 2
+</button>
+
+<script>
+    // const socket = io(`http://localhost:${configs.PORT}`);
+    const socket = io(`http://localhost:5100`);
+
+
+
+    const okBtn = document.getElementById('send');
+    const broadcastBtn = document.getElementById('broadcast');
+    const joinRoom1Btn = document.getElementById('joinRoom1');
+    const joinRoom2Btn = document.getElementById('joinRoom2');
+
+    okBtn.onclick = () => {
+        socket.emit('message:create',{text:'My first socket event'});
+    };
+
+    socket.on("message:receive",(messageInfo)=>{
+        document.write(JSON.stringify(messageInfo,null,2))
+    });
+
+    broadcastBtn.onclick = () => {
+        socket.emit('broadcast:all', 'This is broadcast to all');
+    };
+
+    socket.on('alert',(message)=>{
+        alert(message);
+    });
+
+    socket.on('room:newUserAlert',(joinedUserId)=>{
+        alert(`User ${joinedUserId} has entered the room`);
+    });
+
+    joinRoom1Btn.onclick = () =>{
+        socket.emit(`room:joinUser`, {roomId:1})
+    }
+
+    joinRoom2Btn.onclick = () =>{
+        socket.emit(`room:joinUser`, {roomId:2})
+    }
+
+
+</script>
+
+
+
+
+
+</body>
+</html>
