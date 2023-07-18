@@ -8,4 +8,6 @@ export interface IUser extends Document {
   avatar?: string;
   password: string;
   phone: string;
+  nameWithAge(): string;
+  nameWithSurname: string;
 }

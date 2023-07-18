@@ -47,7 +47,6 @@ io.on("connection", (socket) => {
     // send to all users in room except sender
     // socket.to(roomId).emit("room:newUserAlert", socket.id);
 
-
     io.to(roomId).emit("room:newUserAlert", socket.id);
   });
 });

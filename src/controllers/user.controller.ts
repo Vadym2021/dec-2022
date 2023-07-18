@@ -6,7 +6,11 @@ import { createReadStream } from "streamifier";
 import { ApiError } from "../errors";
 import { userMapper } from "../mapers/user.mapper";
 import { s3Service } from "../services/s3.service";
-import { userService } from "../services/user.service";
+import {
+  IPaginationResponse,
+  IQuery,
+  userService,
+} from "../services/user.service";
 import { IUser } from "../types/user.type";
 
 class UserController {
@@ -14,9 +18,11 @@ class UserController {
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<Response<IUser[]>> {
+  ): Promise<Response<IPaginationResponse<IUser>>> {
     try {
-      const users = await userService.findAll();
+      const users = await userService.findAllWithPagination(
+        req.query as unknown as IQuery
+      );
 
       return res.json(users);
     } catch (e) {
@@ -33,6 +39,8 @@ class UserController {
       const { userId } = req.params;
 
       const user = await userService.findById(userId);
+
+      user.nameWithAge();
 
       const response = userMapper.toResponse(user);
 
